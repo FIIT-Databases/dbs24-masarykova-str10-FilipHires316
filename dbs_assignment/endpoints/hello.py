@@ -1,7 +1,5 @@
-from fastapi import APIRouter
-
 from dbs_assignment.config import settings
-
+from fastapi import APIRouter
 router = APIRouter()
 
 
