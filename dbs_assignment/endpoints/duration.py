@@ -15,7 +15,7 @@ LIMIT %s;
 """
 
 
-@router.get('/v2/posts')
+@router.get('/v2/posts/')
 async def get_duration(duration: int = Query(...), limit: int = Query(...)):
     postgres_duration = get_postgres_duration(duration, limit)
     response = [

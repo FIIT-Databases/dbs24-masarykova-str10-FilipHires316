@@ -19,7 +19,7 @@ GROUP BY temp.answercount, temp.body, temp.closeddate, temp.creationdate, temp.i
 """
 
 
-@router.get('/v2/posts/')
+@router.get('/v2/posts')
 async def get_duration(limit: int = Query(...), query: str = Query(...)):
     postgres_duration = get_postgres_duration(limit, query)
     response = [
