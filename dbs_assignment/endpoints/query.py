@@ -7,14 +7,14 @@ router = APIRouter()
 
 
 my_query = """
-WITH temp AS (SELECT posts.id, posts.creationdate, posts.viewcount, posts.lasteditdate, posts.lastactivitydate, posts.title, posts.closeddate FROM posts
+WITH temp AS (SELECT answercount, body, closeddate, creationdate, id, lastactivitydate, lasteditdate, title, viewcount FROM posts
 WHERE (posts.title ILIKE %s OR posts.body ILIKE %s)
 ORDER BY creationdate DESC
 LIMIT %s)
-SELECT temp.id, temp.creationdate, temp.viewcount, temp.lasteditdate, temp.lastactivitydate, temp.title, temp.closeddate, array_agg(tags.tagname) FROM temp
+SELECT temp.answercount, temp.body, temp.closeddate, temp.creationdate, temp.id, temp.lastactivitydate, temp.lasteditdate, array_agg(tags.tagname), temp.title, temp.viewcount FROM temp
 JOIN post_tags ON temp.id = post_tags.post_id
 JOIN tags ON post_tags.tag_id = tags.id
-GROUP BY temp.id, temp.creationdate, temp.viewcount, temp.lasteditdate, temp.lastactivitydate, temp.title, temp.closeddate;
+GROUP BY temp.answercount, temp.body, temp.closeddate, temp.creationdate, temp.id, temp.lastactivitydate, temp.lasteditdate, temp.title, temp.viewcount;
 """
 
 
@@ -23,15 +23,17 @@ async def get_duration(limit: int = Query(...), query: str = Query(...)):
     postgres_duration = get_postgres_duration(limit, query)
     response = [
         {
-         "id": row[0],
-         "creationdate": row[1].isoformat() if row[1] is not None else None,
-         "viewcount": row[2],
-         "lasteditdate": row[3] if row[3] is not None else None,
-         "lastactivitydate": row[4].isoformat() if row[4] is not None else None,
-         "title": row[5],
-         "closeddate": row[6].isoformat() if row[6] is not None else None,
-         "tags": row[7]
-         }
+            "answercount": row[0],
+            "body": row[1],
+            "closeddate": row[2].isoformat().split('+')[0].rstrip('0') + row[2].isoformat()[26:29] if row[2] is not None else None,
+            "creationdate": row[3].isoformat().split('+')[0].rstrip('0') + row[3].isoformat()[26:29] if row[3] is not None else None,
+            "id": row[4],
+            "lastactivitydate": row[5].isoformat().split('+')[0].rstrip('0') + row[5].isoformat()[26:29] if row[5] is not None else None,
+            "lasteditdate": row[6].isoformat().split('+')[0].rstrip('0') + row[6].isoformat()[26:29] if row[6] is not None else None,
+            "tags": row[7],
+            "title": row[8],
+            "viewcount": row[9]
+        }
         for row in postgres_duration
     ]
     return {"items": response}

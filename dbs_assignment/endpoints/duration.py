@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 query = """
-SELECT id, creationdate, viewcount, lasteditdate, lastactivitydate, title, closeddate, ROUND(EXTRACT(EPOCH FROM (closeddate - creationdate)) / 60, 2) AS duration  FROM posts
+SELECT closeddate, creationdate, ROUND(EXTRACT(EPOCH FROM (closeddate - creationdate)) / 60, 2) AS duration, id, lastactivitydate, lasteditdate, title, viewcount FROM posts
 WHERE closeddate IS NOT null and ROUND(EXTRACT(EPOCH FROM (closeddate - creationdate)) / 60, 2) < %s
 ORDER BY creationdate DESC
 LIMIT %s;
@@ -19,14 +19,14 @@ async def get_duration(duration: int = Query(...), limit: int = Query(...)):
     postgres_duration = get_postgres_duration(duration, limit)
     response = [
         {
-         "id": row[0],
-         "creationdate": row[1].isoformat() if row[1] is not None else None,
-         "viewcount": row[2],
-         "lasteditdate": row[3] if row[3] is not None else None,
-         "lastactivitydate": row[4].isoformat() if row[4] is not None else None,
-         "title": row[5],
-         "closeddate": row[6].isoformat() if row[6] is not None else None,
-         "duration": row[7]
+         "closeddate": row[0].isoformat().split('+')[0].rstrip('0') + row[0].isoformat()[26:29] if row[0] is not None else None,
+         "creationdate": row[1].isoformat().split('+')[0].rstrip('0') + row[1].isoformat()[26:29] if row[1] is not None else None,
+         "duration": row[2],
+         "id": row[3],
+         "lastactivitydate": row[4].isoformat().split('+')[0].rstrip('0') + row[4].isoformat()[26:29] if row[4] is not None else None,
+         "lasteditdate": row[5].isoformat().split('+')[0].rstrip('0') + row[5].isoformat()[26:29] if row[5] is not None else None,
+         "title": row[6],
+         "viewcount": row[7],
          }
         for row in postgres_duration
     ]
