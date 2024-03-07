@@ -1,4 +1,5 @@
 import psycopg2
+from dbs_assignment.date_formating import date_formating
 from fastapi import APIRouter, Query
 from dbs_assignment.config import settings
 
@@ -14,17 +15,17 @@ LIMIT %s;
 """
 
 
-@router.get('/v2/posts/')
+@router.get('/v2/posts')
 async def get_duration(duration: int = Query(...), limit: int = Query(...)):
     postgres_duration = get_postgres_duration(duration, limit)
     response = [
         {
-         "closeddate": row[0].isoformat().split('+')[0].rstrip('0') + row[0].isoformat()[26:29] if row[0] is not None else None,
-         "creationdate": row[1].isoformat().split('+')[0].rstrip('0') + row[1].isoformat()[26:29] if row[1] is not None else None,
+         "closeddate": date_formating(row[0]),
+         "creationdate": date_formating(row[1]),
          "duration": row[2],
          "id": row[3],
-         "lastactivitydate": row[4].isoformat().split('+')[0].rstrip('0') + row[4].isoformat()[26:29] if row[4] is not None else None,
-         "lasteditdate": row[5].isoformat().split('+')[0].rstrip('0') + row[5].isoformat()[26:29] if row[5] is not None else None,
+         "lastactivitydate": date_formating(row[4]),
+         "lasteditdate": date_formating(row[5]),
          "title": row[6],
          "viewcount": row[7],
          }

@@ -1,4 +1,5 @@
 import psycopg2
+from dbs_assignment.date_formating import date_formating
 from fastapi import APIRouter, Query
 from dbs_assignment.config import settings
 
@@ -18,18 +19,18 @@ GROUP BY temp.answercount, temp.body, temp.closeddate, temp.creationdate, temp.i
 """
 
 
-@router.get('/v2/posts')
+@router.get('/v2/posts/')
 async def get_duration(limit: int = Query(...), query: str = Query(...)):
     postgres_duration = get_postgres_duration(limit, query)
     response = [
         {
             "answercount": row[0],
             "body": row[1],
-            "closeddate": row[2].isoformat().split('+')[0].rstrip('0') + row[2].isoformat()[26:29] if row[2] is not None else None,
-            "creationdate": row[3].isoformat().split('+')[0].rstrip('0') + row[3].isoformat()[26:29] if row[3] is not None else None,
+            "closeddate": date_formating(row[2]),
+            "creationdate": date_formating(row[3]),
             "id": row[4],
-            "lastactivitydate": row[5].isoformat().split('+')[0].rstrip('0') + row[5].isoformat()[26:29] if row[5] is not None else None,
-            "lasteditdate": row[6].isoformat().split('+')[0].rstrip('0') + row[6].isoformat()[26:29] if row[6] is not None else None,
+            "lastactivitydate": date_formating(row[5]),
+            "lasteditdate": date_formating(row[6]),
             "tags": row[7],
             "title": row[8],
             "viewcount": row[9]

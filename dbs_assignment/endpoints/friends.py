@@ -1,4 +1,5 @@
 import psycopg2
+from dbs_assignment.date_formating import date_formating
 from fastapi import APIRouter
 from dbs_assignment.config import settings
 
@@ -26,9 +27,9 @@ async def get_friends(user_id):
         {
          "id": row[0],
          "reputation": row[1],
-         "creationdate": row[2].isoformat().split('+')[0].rstrip('0') + row[2].isoformat()[26:29] if row[2] is not None else None,
+         "creationdate": date_formating(row[2]),
          "displayname": row[3],
-         "lastaccessdate": row[4].isoformat().split('+')[0].rstrip('0') + row[4].isoformat()[26:29] if row[4] is not None else None,
+         "lastaccessdate": date_formating(row[4]),
          "websiteurl": row[5],
          "location": row[6],
          "aboutme": row[7],
