@@ -5,7 +5,10 @@ from dbs_assignment.config import settings
 router = APIRouter()
 
 query = """
-WITH temp_posts AS (SELECT EXTRACT(DOW FROM posts.creationdate::timestamp) as number_of_week,
+WITH temp_posts AS (SELECT
+CASE WHEN EXTRACT(DOW FROM posts.creationdate::timestamp) = 0 THEN 7
+ELSE EXTRACT(DOW FROM posts.creationdate::timestamp)
+END AS number_of_week,
 SUM(CASE WHEN tags.tagname = %s THEN 1 ELSE 0 END) AS linux_posts,
 COUNT(*) AS total_posts
 FROM posts
@@ -20,7 +23,7 @@ ORDER BY number_of_week;
 @router.get('/v2/tags/{tagname}/stats')
 async def get_stats(tagname):
     postgres_stats = get_postgres_stats(tagname)
-    days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     response = {}
     for i in range(len(days_of_week)):
         response[days_of_week[i]] = postgres_stats[i][0]
