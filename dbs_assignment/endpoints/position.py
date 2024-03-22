@@ -1,7 +1,5 @@
 from typing import Optional
-
 import psycopg2
-from dbs_assignment.date_formating import date_formating
 from fastapi import APIRouter, Query
 from dbs_assignment.config import settings
 
