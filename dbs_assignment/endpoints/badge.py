@@ -22,7 +22,7 @@ SELECT posts.id, posts.title, 'post' AS type, posts.creationdate AS created_at F
 JOIN posts on users.id = posts.owneruserid
 JOIN comments on users.id = comments.userid
 WHERE users.id = %s
-ORDER BY created_at ASC))
+ORDER BY created_at ASC, title DESC))
 WHERE (type = 'badge' and prev_type = 'post') or (type = 'post' and next_type = 'badge');
 """
 
