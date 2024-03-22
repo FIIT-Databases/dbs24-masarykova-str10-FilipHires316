@@ -21,7 +21,7 @@ JOIN users ON comments.userid = users.id
 WHERE tags.tagname = %s
 ORDER BY posts.creationdate ASC)
 WHERE position = %s
-LIMIT %s
+LIMIT %s;
 """
 
 

@@ -10,7 +10,18 @@ router = APIRouter()
 
 
 query = """
-
+SELECT posts.id, posts.title, users.displayname, comments.text, posts.creationdate, comments.creationdate,
+CASE WHEN comments.creationdate - LAG(comments.creationdate) OVER (PARTITION BY posts.id ORDER BY posts.creationdate ASC, comments.creationdate ASC) IS null THEN comments.creationdate - posts.creationdate
+ELSE comments.creationdate - LAG(comments.creationdate) OVER (PARTITION BY posts.id ORDER BY posts.creationdate ASC, comments.creationdate ASC)
+END AS diff,
+(comments.creationdate - posts.creationdate) / ROW_NUMBER() OVER (PARTITION BY posts.id ORDER BY comments.creationdate) AS avg
+FROM comments
+JOIN posts on comments.postid = posts.id
+JOIN post_tags ON posts.id = post_tags.post_id
+JOIN tags ON post_tags.tag_id = tags.id
+JOIN users on comments.userid = users.id
+WHERE tags.tagname = %s and posts.commentcount > %s
+ORDER BY posts.creationdate ASC, comments.creationdate ASC;
 """
 
 
@@ -19,20 +30,14 @@ async def get_comments(tag, count: Optional[int] = Query(None)):
     postgres_comments = get_postgres_comments(tag, count)
     response = [
         {
-         "id": row[0],
-         "reputation": row[1],
-         "creationdate": date_formating(row[2]),
-         "displayname": row[3],
-         "lastaccessdate": date_formating(row[4]),
-         "websiteurl": row[5],
-         "location": row[6],
-         "aboutme": row[7],
-         "views": row[8],
-         "upvotes": row[9],
-         "downvotes": row[10],
-         "profileimageurl": row[11],
-         "age": row[12],
-         "accountid": row[13]
+         "post_id": row[0],
+         "title": row[1],
+         "displayname": row[2],
+         "text": row[3],
+         "post_created_at": date_formating(row[4]),
+         "created_at": date_formating(row[5]),
+         "diff": row[6],
+         "avg": row[7]
          }
         for row in postgres_comments
     ]
