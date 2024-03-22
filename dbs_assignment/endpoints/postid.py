@@ -10,29 +10,26 @@ router = APIRouter()
 
 
 query = """
-
+SELECT users.displayname, posts.body, posts.creationdate FROM posts
+JOIN users ON posts.owneruserid = users.id
+WHERE posts.id = %s
+UNION
+(SELECT users.displayname, posts.body, posts.creationdate FROM posts
+JOIN users ON posts.owneruserid = users.id
+WHERE posts.parentid = %s
+ORDER BY posts.creationdate ASC
+LIMIT %s - 1);
 """
 
 
-@router.get(' /v3/posts/{postid}')
+@router.get('/v3/posts/{postid}')
 async def get_postid(postid, limit: Optional[int] = Query(None)):
     postgres_postid = get_postgres_postid(postid, limit)
     response = [
         {
-         "id": row[0],
-         "reputation": row[1],
-         "creationdate": date_formating(row[2]),
-         "displayname": row[3],
-         "lastaccessdate": date_formating(row[4]),
-         "websiteurl": row[5],
-         "location": row[6],
-         "aboutme": row[7],
-         "views": row[8],
-         "upvotes": row[9],
-         "downvotes": row[10],
-         "profileimageurl": row[11],
-         "age": row[12],
-         "accountid": row[13]
+         "displayname": row[0],
+         "body": row[1],
+         "created_at": date_formating(row[2])
          }
         for row in postgres_postid
     ]
@@ -48,7 +45,7 @@ def get_postgres_postid(postid, limit):
         port=settings.DATABASE_PORT
     )
     cursor = connection.cursor()
-    cursor.execute(query, (postid, limit,))
+    cursor.execute(query, (postid, postid, limit,))
     version = cursor.fetchall()
     connection.close()
     return version

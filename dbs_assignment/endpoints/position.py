@@ -10,7 +10,18 @@ router = APIRouter()
 
 
 query = """
-
+SELECT id, displayname, body, text, score, position FROM
+(SELECT comments.id, users.displayname, posts.body, comments.text, comments.score,
+ROW_NUMBER() OVER (PARTITION BY posts.id ORDER BY comments.creationdate ASC) AS position
+FROM comments
+JOIN posts on comments.postid = posts.id
+JOIN post_tags ON posts.id = post_tags.post_id
+JOIN tags ON post_tags.tag_id = tags.id
+JOIN users ON comments.userid = users.id
+WHERE tags.tagname = %s
+ORDER BY posts.creationdate ASC)
+WHERE position = %s
+LIMIT %s
 """
 
 
@@ -20,19 +31,11 @@ async def get_position(tagname, position, limit: Optional[int] = Query(None)):
     response = [
         {
          "id": row[0],
-         "reputation": row[1],
-         "creationdate": date_formating(row[2]),
-         "displayname": row[3],
-         "lastaccessdate": date_formating(row[4]),
-         "websiteurl": row[5],
-         "location": row[6],
-         "aboutme": row[7],
-         "views": row[8],
-         "upvotes": row[9],
-         "downvotes": row[10],
-         "profileimageurl": row[11],
-         "age": row[12],
-         "accountid": row[13]
+         "displayname": row[1],
+         "body": row[2],
+         "text": row[3],
+         "score": row[4],
+         "position": row[5]
          }
         for row in postgres_position
     ]
