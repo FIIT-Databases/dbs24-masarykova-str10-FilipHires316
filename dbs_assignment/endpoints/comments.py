@@ -19,7 +19,7 @@ FROM comments
 JOIN posts on comments.postid = posts.id
 JOIN post_tags ON posts.id = post_tags.post_id
 JOIN tags ON post_tags.tag_id = tags.id
-JOIN users on comments.userid = users.id
+LEFT JOIN users on comments.userid = users.id
 WHERE tags.tagname = %s and posts.commentcount > %s
 ORDER BY posts.creationdate ASC, comments.creationdate ASC;
 """
