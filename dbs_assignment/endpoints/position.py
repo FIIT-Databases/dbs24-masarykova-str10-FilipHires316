@@ -17,7 +17,7 @@ JOIN post_tags ON posts.id = post_tags.post_id
 JOIN tags ON post_tags.tag_id = tags.id
 JOIN users ON comments.userid = users.id
 WHERE tags.tagname = %s
-ORDER BY posts.creationdate ASC)
+ORDER BY posts.creationdate ASC) AS first
 WHERE position = %s
 LIMIT %s;
 """
