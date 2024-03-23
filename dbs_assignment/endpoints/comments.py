@@ -36,8 +36,8 @@ async def get_comments(tag, count: Optional[int] = Query(None)):
          "text": row[3],
          "post_created_at": date_formating(row[4]),
          "created_at": date_formating(row[5]),
-         "diff": row[6],
-         "avg": row[7]
+         "diff": str(row[6]).rstrip('0'),
+         "avg": str(row[7]).rstrip('0')
          }
         for row in postgres_comments
     ]
