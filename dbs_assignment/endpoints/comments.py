@@ -1,7 +1,7 @@
 from typing import Optional
 
 import psycopg2
-from dbs_assignment.date_formating import date_formating
+from dbs_assignment.date_formating import date_formating, time_formating
 from fastapi import APIRouter, Query
 from dbs_assignment.config import settings
 
@@ -36,8 +36,8 @@ async def get_comments(tag, count: Optional[int] = Query(None)):
          "text": row[3],
          "post_created_at": date_formating(row[4]),
          "created_at": date_formating(row[5]),
-         "diff": str(row[6]).rstrip('0'),
-         "avg": str(row[7]).rstrip('0')
+         "diff": time_formating(row[6]),
+         "avg": time_formating(row[7])
          }
         for row in postgres_comments
     ]
